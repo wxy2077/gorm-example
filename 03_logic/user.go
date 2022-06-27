@@ -2,7 +2,7 @@ package logic
 
 import (
 	"errors"
-	model "gorm-example/01_model_tag"
+	model "gorm-example/01_model"
 	"gorm.io/gorm"
 )
 
