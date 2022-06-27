@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	model "gorm-example/01_model_tag"
+	model "gorm-example/01_model"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
