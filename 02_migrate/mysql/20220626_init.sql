@@ -45,6 +45,22 @@ CREATE TABLE IF NOT EXISTS `department_users`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
+INSERT INTO `example`.`users`(`id`, `account`, `password`, `username`, `phone`, `avatar`, `email`, `created_at`, `updated_at`, `deleted_at`) VALUES (1, 'hanli', NULL, '韩立', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `example`.`users`(`id`, `account`, `password`, `username`, `phone`, `avatar`, `email`, `created_at`, `updated_at`, `deleted_at`) VALUES (2, 'mark', NULL, '马克', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `example`.`users`(`id`, `account`, `password`, `username`, `phone`, `avatar`, `email`, `created_at`, `updated_at`, `deleted_at`) VALUES (3, 'qi', NULL, '阿七', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `example`.`users`(`id`, `account`, `password`, `username`, `phone`, `avatar`, `email`, `created_at`, `updated_at`, `deleted_at`) VALUES (4, 'allen', NULL, '艾伦', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `example`.`users`(`id`, `account`, `password`, `username`, `phone`, `avatar`, `email`, `created_at`, `updated_at`, `deleted_at`) VALUES (5, 'batman', NULL, '布鲁斯', NULL, NULL, NULL, NULL, NULL, NULL);
+
+INSERT INTO `example`.`departments`(`id`, `dep_id`, `title`, `parent_id`, `level`, `path`, `created_at`, `updated_at`, `deleted_at`) VALUES (1, 1, '电影', '0', '0', '/1', NULL, NULL, NULL);
+INSERT INTO `example`.`departments`(`id`, `dep_id`, `title`, `parent_id`, `level`, `path`, `created_at`, `updated_at`, `deleted_at`) VALUES (2, 2, '动漫', '0', '0', '/2', NULL, NULL, NULL);
+INSERT INTO `example`.`departments`(`id`, `dep_id`, `title`, `parent_id`, `level`, `path`, `created_at`, `updated_at`, `deleted_at`) VALUES (3, 3, '国漫', '2', '1', '/2/3', NULL, NULL, NULL);
+INSERT INTO `example`.`departments`(`id`, `dep_id`, `title`, `parent_id`, `level`, `path`, `created_at`, `updated_at`, `deleted_at`) VALUES (4, 4, '日漫', '2', '1', '/2/4', NULL, NULL, NULL);
+
+INSERT INTO `example`.`department_users`(`id`, `user_id`, `dep_id`) VALUES (1, 1, 3);
+INSERT INTO `example`.`department_users`(`id`, `user_id`, `dep_id`) VALUES (2, 2, 3);
+INSERT INTO `example`.`department_users`(`id`, `user_id`, `dep_id`) VALUES (3, 3, 3);
+INSERT INTO `example`.`department_users`(`id`, `user_id`, `dep_id`) VALUES (4, 4, 4);
+INSERT INTO `example`.`department_users`(`id`, `user_id`, `dep_id`) VALUES (5, 5, 1);
 
 -- +migrate Down
 DROP TABLE `users`;

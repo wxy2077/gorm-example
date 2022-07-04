@@ -10,7 +10,6 @@ type DepartmentUser struct {
 	Department *Department `gorm:"foreignKey:ID;references:DepartmentID" json:"department"`
 }
 
-// TableName
 func (du *DepartmentUser) TableName() string {
 	return "department_users"
 }

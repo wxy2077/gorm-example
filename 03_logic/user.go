@@ -8,7 +8,7 @@ import (
 
 type UserLogic interface {
 
-	// 登录
+	// Login 登录
 	Login(db *gorm.DB, account, password string) (token string, err error)
 
 	// 其他业务逻辑方法....
@@ -17,7 +17,7 @@ type UserLogic interface {
 type userLogic struct {
 }
 
-// 接口controller层直接调用 NewUserLogic
+// NewUserLogic 接口controller层直接调用
 // 完成各种业务操作
 func NewUserLogic() UserLogic {
 	return &userLogic{}

@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// 使用sql-migrate时,不需要关心gorm tag的写法
+// User 使用sql-migrate时,不需要关心gorm tag的写法
 // 以下可以适用gorm自带迁移工具执行迁移
 // 生成的建表SQL和 02_migrate/mysql/20220626_init.sql下的`users`表SQL一致。
 type User struct {
@@ -23,7 +23,6 @@ type User struct {
 	DeletedAt gorm.DeletedAt    `gorm:"index" json:"deleted_at,omitempty"`
 }
 
-// TableName
 func (u *User) TableName() string {
 	return "users"
 }
@@ -38,7 +37,7 @@ func (u *User) AfterFind(tx *gorm.DB) (err error) {
 	return nil
 }
 
-// 筛选条件
+// FilterUser 筛选条件
 type FilterUser struct {
 	ID       int64
 	IDs      []int64
@@ -49,7 +48,7 @@ type FilterUser struct {
 	PageSize int64
 }
 
-// 获取一条数据
+// First 获取一条数据
 // 尽可能封装更多的条件场景
 func (u *User) First(db *gorm.DB, filter *FilterUser, columns ...string) error {
 	db = db.Model(&User{})
@@ -71,7 +70,7 @@ func (u *User) First(db *gorm.DB, filter *FilterUser, columns ...string) error {
 	return db.First(u).Error
 }
 
-// 分页
+// Find 分页
 // model 层只写不包含任何业务逻辑的纯SQL操作
 // 然后在其他层组合基本操作逻辑成业务
 func (u *User) Find(db *gorm.DB, filter *FilterUser, columns ...string) (list []*User, pagination *utils.Pagination) {

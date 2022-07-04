@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// 具体gorm tag见user表
+// Department 具体gorm tag见user表
 type Department struct {
 	ID int64 `json:"id,omitempty"`
 
@@ -23,7 +23,6 @@ type Department struct {
 	DeletedAt gorm.DeletedAt    `json:"deleted_at,omitempty"`
 }
 
-// TableName
 func (d *Department) TableName() string {
 	return "departments"
 }

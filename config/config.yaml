@@ -1,0 +1,8 @@
+
+
+MainMySQL:
+  DNS: root:123456@tcp(127.0.0.1:3306)
+  Database: example
+  MaxIDleConn: 100
+  MaxOpenConn: 100
+  MaxLifeTime: 1000
