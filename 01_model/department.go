@@ -12,11 +12,11 @@ type Department struct {
 
 	Title string `json:"title,omitempty"`
 
-	ParentID null.Int `json:"parent_id"`
+	ParentID null.Int `json:"parent_id,omitempty"`
 
-	Level null.Int `json:"level"`
+	Level int64 `json:"level,omitempty"`
 
-	Path string `json:"path"`
+	Path string `json:"path,omitempty"`
 
 	CreatedAt *utils.LocalTimeX `json:"created_at,omitempty"` // 自定义时间JSON序列化
 	UpdatedAt *utils.LocalTimeX `json:"updated_at,omitempty"`

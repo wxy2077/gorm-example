@@ -26,10 +26,25 @@ func init() {
 
 }
 
-func HandleFunc(w http.ResponseWriter, req *http.Request) {
+func JoinFunc(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	list, pagination := logic.NewJoinLogic().UserDepList(global.DB, 1)
+	list, pagination := logic.NewUserLogic().UserDepList(global.DB, 1)
+
+	res := &utils.OkWithPage{
+		List:       list,
+		Pagination: pagination,
+	}
+
+	jData, _ := json.Marshal(res)
+
+	w.Write(jData)
+}
+
+func PreloadFunc(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	list, pagination := logic.NewUserLogic().PreloadUserDep(global.DB, 1)
 
 	res := &utils.OkWithPage{
 		List:       list,
@@ -42,9 +57,12 @@ func HandleFunc(w http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
-	http.HandleFunc("/index", HandleFunc)
+	http.HandleFunc("/join", JoinFunc)
+	http.HandleFunc("/preload", PreloadFunc)
+
 	port := 8001
-	fmt.Printf("http://127.0.0.1:%d\n", port)
+	fmt.Printf("连接查询: http://127.0.0.1:%d/join\n", port)
+	fmt.Printf("预加载: http://127.0.0.1:%d/preload\n", port)
 
 	http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 

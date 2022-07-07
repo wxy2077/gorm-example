@@ -21,6 +21,8 @@ type User struct {
 	CreatedAt *utils.LocalTimeX `json:"created_at,omitempty"` // 自定义时间JSON序列化
 	UpdatedAt *utils.LocalTimeX `json:"updated_at,omitempty"`
 	DeletedAt gorm.DeletedAt    `gorm:"index" json:"deleted_at,omitempty"`
+
+	DepartmentUser []*DepartmentUser `gorm:"foreignKey:UserID;references:ID" json:"department_user"`
 }
 
 func (u *User) TableName() string {

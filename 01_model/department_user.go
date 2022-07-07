@@ -5,9 +5,9 @@ type DepartmentUser struct {
 
 	UserID int64 `json:"user_id"`
 
-	DepartmentID int64 `json:"department_id"`
+	DepID int64 `json:"dep_id"`
 
-	Department *Department `gorm:"foreignKey:ID;references:DepartmentID" json:"department"`
+	Department *Department `gorm:"foreignKey:ID;references:DepID" json:"department"`
 }
 
 func (du *DepartmentUser) TableName() string {

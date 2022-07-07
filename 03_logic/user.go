@@ -3,6 +3,7 @@ package logic
 import (
 	"errors"
 	model "gorm-example/01_model"
+	"gorm-example/utils"
 	"gorm.io/gorm"
 )
 
@@ -10,6 +11,12 @@ type UserLogic interface {
 
 	// Login 登录
 	Login(db *gorm.DB, account, password string) (token string, err error)
+
+	// UserDepList 连接查询用户所在部门
+	UserDepList(db *gorm.DB, page int64) (list []*UserList, pagination *utils.Pagination)
+
+	// PreloadUserDep 预加载查询出所有的部门
+	PreloadUserDep(db *gorm.DB, page int64) (list []*model.User, pagination *utils.Pagination)
 
 	// 其他业务逻辑方法....
 }
@@ -38,4 +45,44 @@ func (u *userLogic) Login(db *gorm.DB, account, password string) (token string, 
 	// 生成token
 
 	return "", err
+}
+
+type UserList struct {
+	*model.User
+	Title string `json:"title"`
+}
+
+func (u *userLogic) UserDepList(db *gorm.DB, page int64) (list []*UserList, pagination *utils.Pagination) {
+
+	db = db.Debug().Model(&model.User{}).Select("d.title,users.*").
+		Joins("LEFT JOIN department_users du ON du.user_id = users.id").
+		Joins("LEFT JOIN departments d ON d.dep_id = du.dep_id")
+
+	pagination = utils.Paginate(&utils.Param{
+		DB:      db,
+		Page:    page,
+		Limit:   15,
+		OrderBy: []string{"id desc"},
+	}, &list)
+
+	return list, pagination
+}
+
+func (u *userLogic) PreloadUserDep(db *gorm.DB, page int64) (list []*model.User, pagination *utils.Pagination) {
+
+	db = db.Debug().Model(&model.User{}).
+		Preload("DepartmentUser", func(tx *gorm.DB) *gorm.DB {
+			return tx.Preload("Department", func(tx *gorm.DB) *gorm.DB {
+				return tx.Select("id,title")
+			})
+		})
+
+	pagination = utils.Paginate(&utils.Param{
+		DB:      db,
+		Page:    page,
+		Limit:   15,
+		OrderBy: []string{"id desc"},
+	}, &list)
+
+	return list, pagination
 }
