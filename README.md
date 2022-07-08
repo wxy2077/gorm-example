@@ -63,6 +63,6 @@ go mod tidy
 # 项目根目录下
 go run main.go
 ```
-建议浏览器安装`JSON-handle`查看，查看SQL更方便。
+建议浏览器安装`JSON-handle`查看，查看接口JSON结果更方便。
 
 ![预加载查询结果展示](./img/preload.png)
