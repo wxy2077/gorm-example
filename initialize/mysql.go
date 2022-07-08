@@ -5,6 +5,7 @@ import (
 	"gorm-example/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"time"
 )
 
 func GormMysql(config *config.MySQL) *gorm.DB {
@@ -23,6 +24,7 @@ func GormMysql(config *config.MySQL) *gorm.DB {
 		sqlDB, _ := db.DB()
 		sqlDB.SetMaxIdleConns(config.MaxIDleConn)
 		sqlDB.SetMaxOpenConns(config.MaxOpenConn)
+		sqlDB.SetConnMaxLifetime(time.Duration(config.MaxLifeTime) * time.Second)
 		return db
 	}
 }

@@ -5,16 +5,14 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 	"log"
-	"sync"
 )
 
 type LoadCfg struct {
-	mu         *sync.Mutex
 	reloadFunc func(v interface{})
 }
 
 func NewLoad() *LoadCfg {
-	return &LoadCfg{mu: new(sync.Mutex)}
+	return &LoadCfg{}
 }
 
 func (l *LoadCfg) LoadCfg(path string, v interface{}) {

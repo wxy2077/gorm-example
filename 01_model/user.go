@@ -22,13 +22,16 @@ type User struct {
 	UpdatedAt *utils.LocalTimeX `json:"updated_at,omitempty"`
 	DeletedAt gorm.DeletedAt    `gorm:"index" json:"deleted_at,omitempty"`
 
-	DepartmentUser []*DepartmentUser `gorm:"foreignKey:UserID;references:ID" json:"department_user"`
+	// 逻辑外键关系  references:为自身model的字段   foreignKey:为对应关联的model字段
+	DepartmentUser []*DepartmentUser `gorm:"foreignKey:UserID;references:ID" json:"department_user,omitempty"`
 }
 
 func (u *User) TableName() string {
 	return "users"
 }
 
+// 查询钩子函数(hook) 使用preload查询对应model时，也会启用钩子
+// 官方文档 https://gorm.io/zh_CN/docs/hooks.html
 func (u *User) AfterFind(tx *gorm.DB) (err error) {
 
 	// 没有设置头像时，设置默认头像
