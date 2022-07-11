@@ -24,6 +24,9 @@ type User struct {
 
 	// 逻辑外键关系  references:为自身model的字段   foreignKey:为对应关联的model字段
 	DepartmentUser []*DepartmentUser `gorm:"foreignKey:UserID;references:ID" json:"department_user,omitempty"`
+
+	// 逻辑外间 多对多 同上
+	Department []*Department `gorm:"many2many:department_users;foreignKey:ID;joinForeignKey:UserID;References:ID;JoinReferences:DepID;" json:"departments"`
 }
 
 func (u *User) TableName() string {

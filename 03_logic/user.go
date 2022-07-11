@@ -18,6 +18,9 @@ type UserLogic interface {
 	// PreloadUserDep 预加载查询出所有的部门
 	PreloadUserDep(db *gorm.DB, page int64) (list []*model.User, pagination *utils.Pagination)
 
+	// 同上
+	PreloadUserDeps(db *gorm.DB, page int64) (list []*model.User, pagination *utils.Pagination)
+
 	// 原生SQL查询
 
 	// 其他业务逻辑方法....
@@ -78,6 +81,20 @@ func (u *userLogic) PreloadUserDep(db *gorm.DB, page int64) (list []*model.User,
 				return tx.Select("id,title")
 			})
 		})
+
+	pagination = utils.Paginate(&utils.Param{
+		DB:      db,
+		Page:    page,
+		Limit:   15,
+		OrderBy: []string{"id desc"},
+	}, &list)
+
+	return list, pagination
+}
+
+func (u *userLogic) PreloadUserDeps(db *gorm.DB, page int64) (list []*model.User, pagination *utils.Pagination) {
+
+	db = db.Debug().Model(&model.User{}).Preload("Department")
 
 	pagination = utils.Paginate(&utils.Param{
 		DB:      db,
