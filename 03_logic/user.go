@@ -94,6 +94,8 @@ func (u *userLogic) PreloadUserDep(db *gorm.DB, page int64) (list []*model.User,
 
 func (u *userLogic) PreloadUserDeps(db *gorm.DB, page int64) (list []*model.User, pagination *utils.Pagination) {
 
+	list = make([]*model.User,0, 1)
+
 	db = db.Debug().Model(&model.User{}).Preload("Department")
 
 	pagination = utils.Paginate(&utils.Param{
