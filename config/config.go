@@ -2,6 +2,7 @@ package config
 
 type Config struct {
 	MainMySQL *MySQL
+	Runtime   *Runtime
 }
 
 type MySQL struct {
@@ -10,4 +11,10 @@ type MySQL struct {
 	MaxIDleConn int
 	MaxOpenConn int
 	MaxLifeTime int
+}
+
+type Runtime struct {
+	HttpPort       int64
+	JaegerHostPort string
+	ServerName     string
 }

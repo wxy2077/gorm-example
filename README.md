@@ -8,17 +8,15 @@
 ### 演示功能
 
 - [x] model的tag编写格式。
-- [x] 数据库迁移以及维护，主要使用`sql-migrate`,具体使用见[这里](./02_migrate/README.md)。
-- [x] 常见查询分页，以及规范建议。[见这里](./03_logic/README.md)
+- [x] 数据库迁移以及维护，主要使用`sql-migrate`,具体使用见[这里](./migrate/README.md)。
+- [x] 常见查询分页，以及规范建议。[见这里](./logic/README.md)
 - [x] 基础配置文件加载。
-- [ ] Jaeger链路追踪,显示SQL操作顺序。
+- [x] Jaeger链路追踪,显示SQL操作顺序,以及请求参数和响应参数。
 
 ### 项目结构设计
 
 <details>
 <summary>结构设计建议</summary>
-
-> 仓库文件夹取名01_xx, 02_xx开头，是为了排序，方便从上到下阅读，实际项目中不要这样做。
 
 一般`Web`项目，比如`Java`会分为三层。
 ```
@@ -34,7 +32,8 @@ Controller层:
     controller层一般会和前台的js文件进行数据的交互， controller层是前台数据的接收器，后台处理好的数据也是通过controller层传递到前台显示的。
 ```
 
-此仓库只展示了 DAO层(model) 和 Service层(logic)
+在此演示项目中
+
 ```
 DAO层 对应 Model层
 
@@ -56,7 +55,7 @@ Controller层 可以自行根据web框架在对应路由操作下添加。
 ```
 go mod tidy
 ```
-迁移见[sql-migrate](./02_migrate/README.md)
+迁移见[sql-migrate](./migrate/README.md)
 
 - 2 启动
 ```
@@ -66,3 +65,27 @@ go run main.go
 建议浏览器安装`JSON-handle`查看，查看接口JSON结果更方便。
 
 ![预加载查询结果展示](./img/preload.png)
+
+- 3 Jaeger链路追踪
+```
+# 需要docker安装Jaeger
+
+docker run -d --name jaeger \
+  -e COLLECTOR_ZIPKIN_HOST_PORT=:9411 \
+  -p 5775:5775/udp \
+  -p 6831:6831/udp \
+  -p 6832:6832/udp \
+  -p 5778:5778 \
+  -p 16686:16686 \
+  -p 14268:14268 \
+  -p 14250:14250 \
+  -p 9411:9411 \
+  jaegertracing/all-in-one:1.22
+  
+```
+> 装好后访问，用接口响应中的traceID查询请求。
+
+- http://127.0.0.1:16686/search
+
+方便追踪请求，效果图如下
+![Jaeger效果图](./img/jeager.jpg)

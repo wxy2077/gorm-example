@@ -1,14 +1,13 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
-	logic "gorm-example/03_logic"
 	"gorm-example/config"
+	"gorm-example/controller"
 	"gorm-example/global"
 	"gorm-example/initialize"
-	"gorm-example/utils"
+	"gorm-example/middleware"
 	"net/http"
 )
 
@@ -22,65 +21,54 @@ func init() {
 	global.Config = new(config.Config)
 	loadEngine := config.NewLoad()
 	loadEngine.LoadCfg(*configFile, global.Config)
+
+	_, err := initialize.InitJaeger(global.Config.Runtime)
+	if err != nil {
+		fmt.Printf("初始化jager出错:%s", err.Error())
+	}
+
 	global.DB = initialize.GormMysql(global.Config.MainMySQL)
 
 }
 
-func JoinFunc(w http.ResponseWriter, req *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+type Middleware func(next http.HandlerFunc) http.HandlerFunc
 
-	list, pagination := logic.NewUserLogic().UserDepList(global.DB, 1)
-
-	res := &utils.OkWithPage{
-		List:       list,
-		Pagination: pagination,
-	}
-
-	jData, _ := json.Marshal(res)
-
-	w.Write(jData)
+type Router struct {
+	middleware []Middleware // 中间件列表
+	mux        *http.ServeMux
 }
 
-func PreloadFunc(w http.ResponseWriter, req *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
-	list, pagination := logic.NewUserLogic().PreloadUserDep(global.DB, 1)
-
-	res := &utils.OkWithPage{
-		List:       list,
-		Pagination: pagination,
+func NewRouter() *Router {
+	return &Router{
+		mux: http.NewServeMux(),
 	}
-
-	jData, _ := json.Marshal(res)
-
-	w.Write(jData)
 }
 
-func PreloadsFunc(w http.ResponseWriter, req *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+func (r *Router) Use(middleware ...Middleware) {
+	r.middleware = append(r.middleware, middleware...)
+}
 
-	list, pagination := logic.NewUserLogic().PreloadUserDeps(global.DB, 1)
-
-	res := &utils.OkWithPage{
-		List:       list,
-		Pagination: pagination,
+func (r *Router) HandleFunc(pattern string, handler http.HandlerFunc) {
+	for _, m := range r.middleware {
+		handler = m(handler)
 	}
 
-	jData, _ := json.Marshal(res)
+	r.mux.HandleFunc(pattern, handler)
+}
 
-	w.Write(jData)
+func (r *Router) ListenAndServe(addr string) error {
+	return http.ListenAndServe(addr, r.mux)
 }
 
 func main() {
-	http.HandleFunc("/join", JoinFunc)
-	http.HandleFunc("/preload", PreloadFunc)
-	http.HandleFunc("/preloads", PreloadsFunc)
 
-	port := 8001
-	fmt.Printf("连接查询: http://127.0.0.1:%d/join\n", port)
-	fmt.Printf("预加载: http://127.0.0.1:%d/preload\n", port)
-	fmt.Printf("预加载多对多: http://127.0.0.1:%d/preloads\n", port)
+	router := NewRouter()
 
-	http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+	router.Use(middleware.TraceMiddleware)
 
+	router.HandleFunc("/join", controller.JoinFunc)
+	router.HandleFunc("/preload", controller.PreloadFunc)
+	router.HandleFunc("/preloads", controller.PreloadsFunc)
+
+	_ = router.ListenAndServe(fmt.Sprintf(":%d", global.Config.Runtime.HttpPort))
 }

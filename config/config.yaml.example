@@ -6,3 +6,9 @@ MainMySQL:
   MaxIDleConn: 100
   MaxOpenConn: 100
   MaxLifeTime: 1000
+
+
+Runtime:
+  HttpPort: 8081
+  JaegerHostPort: 127.0.0.1:6831
+  ServerName: "gorm-example"

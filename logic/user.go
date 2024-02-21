@@ -2,7 +2,7 @@ package logic
 
 import (
 	"errors"
-	model "gorm-example/01_model"
+	model "gorm-example/model"
 	"gorm-example/utils"
 	"gorm.io/gorm"
 )
@@ -94,7 +94,7 @@ func (u *userLogic) PreloadUserDep(db *gorm.DB, page int64) (list []*model.User,
 
 func (u *userLogic) PreloadUserDeps(db *gorm.DB, page int64) (list []*model.User, pagination *utils.Pagination) {
 
-	list = make([]*model.User,0, 1)
+	list = make([]*model.User, 0, 1)
 
 	db = db.Debug().Model(&model.User{}).Preload("Department")
 
