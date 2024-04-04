@@ -3,38 +3,47 @@ package middleware
 import (
 	"bytes"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/opentracing/opentracing-go"
 	"github.com/uber/jaeger-client-go"
+	"io"
 	"net/http"
 	"strings"
 	"time"
 )
 
-func TraceMiddleware(next http.HandlerFunc) http.HandlerFunc {
+func TraceMiddleware() gin.HandlerFunc {
 
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(c *gin.Context) {
 
 		buf := &bytes.Buffer{}
-		lrw := &loggingResponseWriter{ResponseWriter: w, buf: buf}
+		lrw := &loggingResponseWriter{
+			ResponseWriter: c.Writer,
+			buf:            buf,
+			start:          time.Now(),
+		}
+		c.Writer = lrw
 
-		span, _ := opentracing.StartSpanFromContext(r.Context(), fmt.Sprintf("begin [ %s ] - %s", r.Method, r.URL.Path))
+		span, _ := opentracing.StartSpanFromContext(c, fmt.Sprintf("begin [ %s ] - %s", c.Request.Method, c.Request.URL.Path))
+		defer span.Finish()
 
 		traceID := span.Context().(jaeger.SpanContext).TraceID().String()
 
-		w.Header().Set("X-Trace-ID", traceID)
+		c.Writer.Header().Set("X-Trace-ID", traceID)
 
-		tagRequest(span, r)
+		tagRequest(span, c.Request)
 
-		ctx := opentracing.ContextWithSpan(r.Context(), span)
-		r = r.WithContext(ctx)
+		// 将新的 Span 上下文注入到当前请求的上下文中
+		ctx := opentracing.ContextWithSpan(c.Request.Context(), span)
 
-		span.Finish()
+		// 使用带有新的 Span 上下文的请求上下文继续处理请求
+		c.Request = c.Request.WithContext(ctx)
+
+		c.Next()
 
 		defer func() {
-			tagResponse(lrw, r)
+			tagResponse(lrw, c.Request)
 		}()
-
-		next(lrw, r)
 	}
 }
 
@@ -45,12 +54,14 @@ func tagRequest(span opentracing.Span, r *http.Request) {
 	span.SetTag("http.host", r.Host)
 	span.SetTag("http.ip", strings.Split(r.RemoteAddr, ":")[0])
 	span.SetTag("http.method", r.Method)
+	span.SetTag("http.content_type", r.Header.Get("Content-Type"))
 
 	_ = r.ParseForm()
+	body, _ := io.ReadAll(r.Body)
 
 	span.LogKV(
-		"Params", r.URL.Query(),
-		"Body", r.Form.Encode(),
+		"Params", r.Form.Encode(),
+		"Body", string(body),
 	)
 }
 
@@ -66,7 +77,7 @@ func tagResponse(lrw *loggingResponseWriter, r *http.Request) {
 }
 
 type loggingResponseWriter struct {
-	http.ResponseWriter
+	gin.ResponseWriter
 	buf        *bytes.Buffer
 	statusCode int
 	start      time.Time
