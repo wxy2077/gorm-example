@@ -1,14 +1,18 @@
 
 # .yaml结尾的配置文件，一般都会设置git忽略，不上传
 # 只留下一个 .yaml.example格式例子文件。
+System:
+  PrefixUrl: "/api/v1"
+
+Runtime:
+  Mode: "debug"
+  HttpPort:  8081
+  JaegerHostPort: 127.0.0.1:6831
+  ServerName: "gorm-example"
+
 MainMySQL:
   DNS: root:123456@tcp(127.0.0.1:3306)
   Database: example
   MaxIDleConn: 100
   MaxOpenConn: 100
   MaxLifeTime: 1000
-
-Runtime:
-  HttpPort:   8081
-  JaegerHostPort: 127.0.0.1:6831
-  ServerName: "gorm-example"

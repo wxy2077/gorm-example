@@ -4,11 +4,10 @@ import (
 	"flag"
 	"fmt"
 	"gorm-example/config"
-	"gorm-example/controller"
 	"gorm-example/global"
 	"gorm-example/initialize"
-	"gorm-example/middleware"
 	"net/http"
+	"time"
 )
 
 var (
@@ -31,44 +30,17 @@ func init() {
 
 }
 
-type Middleware func(next http.HandlerFunc) http.HandlerFunc
-
-type Router struct {
-	middleware []Middleware // 中间件列表
-	mux        *http.ServeMux
-}
-
-func NewRouter() *Router {
-	return &Router{
-		mux: http.NewServeMux(),
-	}
-}
-
-func (r *Router) Use(middleware ...Middleware) {
-	r.middleware = append(r.middleware, middleware...)
-}
-
-func (r *Router) HandleFunc(pattern string, handler http.HandlerFunc) {
-	for _, m := range r.middleware {
-		handler = m(handler)
-	}
-
-	r.mux.HandleFunc(pattern, handler)
-}
-
-func (r *Router) ListenAndServe(addr string) error {
-	return http.ListenAndServe(addr, r.mux)
-}
-
 func main() {
 
-	router := NewRouter()
+	engin := initialize.Engin()
 
-	router.Use(middleware.TraceMiddleware)
+	server := &http.Server{
+		Addr:           fmt.Sprintf(":%d", global.Config.Runtime.HttpPort),
+		Handler:        engin,
+		ReadTimeout:    20 * time.Second,
+		WriteTimeout:   20 * time.Second,
+		MaxHeaderBytes: 1 << 20,
+	}
 
-	router.HandleFunc("/join", controller.JoinFunc)
-	router.HandleFunc("/preload", controller.PreloadFunc)
-	router.HandleFunc("/preloads", controller.PreloadsFunc)
-
-	_ = router.ListenAndServe(fmt.Sprintf(":%d", global.Config.Runtime.HttpPort))
+	_ = server.ListenAndServe()
 }
