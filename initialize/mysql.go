@@ -20,12 +20,6 @@ func GormMysql(config *config.MySQL) *gorm.DB {
 
 	_ = db.Use(&OpentracingPlugin{})
 
-	_ = db.Callback().Create().Remove("gorm:save_before_associations")
-	_ = db.Callback().Update().Remove("gorm:save_before_associations")
-
-	_ = db.Callback().Create().Remove("gorm:save_after_associations")
-	_ = db.Callback().Update().Remove("gorm:save_after_associations")
-
 	if err != nil {
 		return nil
 	} else {
