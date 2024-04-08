@@ -59,6 +59,9 @@ func tagRequest(span opentracing.Span, r *http.Request) {
 	_ = r.ParseForm()
 	body, _ := io.ReadAll(r.Body)
 
+	// 将请求体重新写入Body
+	r.Body = io.NopCloser(bytes.NewBuffer(body))
+
 	span.LogKV(
 		"Params", r.Form.Encode(),
 		"Body", string(body),
